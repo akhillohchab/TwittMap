@@ -14,6 +14,8 @@ import twitter4j.conf.ConfigurationBuilder;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>This is a code example of Twitter4J Streaming API - sample method support.<br>
@@ -52,25 +54,31 @@ public final class TweetGet {
             	//System.out.println(status.getText());
                 
                 long statusId = status.getId();
+                long userId = status.getUser().getId();
                 String screenName = status.getUser().getScreenName();
                 String text = status.getText();
                 GeoLocation location = status.getGeoLocation();
-                if (location != null) {
-	                double latitude = location.getLatitude();
-	                double longitude = location.getLongitude();
-                }
                 String userProfileLocation = status.getUser().getLocation();  
+                double latitude;
+                double longitude;
+                if (location != null) {
+	                latitude = location.getLatitude();
+	                longitude = location.getLongitude();
+                } else if (userProfileLocation != null) {
+                	//TODO query google for coords
+                }
                 
                 System.out.println(location + ", " + userProfileLocation);
                 //TODO parse for keywords
-                //TODO if location == null, use userProfileLocation, and query google maps 
                 //dao.insertStatus(statusId, screenName, text, latitude, longitude, null);
             }
 
             @Override
             public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
                 System.out.println("Got a status deletion notice id:" + statusDeletionNotice.getStatusId());
-                long statusId = statusDeletionNotice.getStatusId(); //same ID as the status ID above - just delete from DB
+                long userId = statusDeletionNotice.getUserId();
+                long statusId = statusDeletionNotice.getStatusId();
+                dao.deleteStatus(userId, statusId);
             }
 
             @Override
@@ -81,6 +89,7 @@ public final class TweetGet {
             @Override
             public void onScrubGeo(long userId, long upToStatusId) {
                 System.out.println("Got scrub_geo event userId:" + userId + " upToStatusId:" + upToStatusId);
+                dao.scrubGeo(userId, upToStatusId);
             }
 
             @Override
