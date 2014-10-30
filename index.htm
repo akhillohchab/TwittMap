@@ -7,14 +7,43 @@
     <style type="text/css">
       html { height: 100% }
       body { height: 100%; margin: 0; padding: 0 }
-      #map { height: 100% }
+      #map { height: 90%;  }
+      #panel {width: 100%%;}
+ 
     </style>
     <script src="http://maps.googleapis.com/maps/api/js"></script>
-   
+    <script type="text/javascript" src="jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src='plotmaps.js'></script>
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=true_or_false">
+    </script>
   </head>
-  
+ 
   <body>
     <div id="map"></div>
-    <script type="text/javascript" src='plotmaps.js'></script>
-  </body>
+ 
+   <div id="panel">
+      <p>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Choose  a keyword:
+
+        <select id="kbselect">
+          <option value="isis">Isis</option>
+          <option value="NFL">NFL</option>
+          <option value="ebola">Ebola</option>
+          <option value="Interstellar">Hollywood</option>
+          <option value="Thanksgiving">Thanksgiving</option>
+          <option value="halloween">Halloween</option>
+          <option value="winter">Winter</option>
+          <option value="NYC">NYC</option>
+
+          <option value="obama">Obama</option>
+  
+          
+        </select>
+      </p>
+    </div> 
+ 
+ </body>
+
 </html>

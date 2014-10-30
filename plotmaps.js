@@ -1,29 +1,62 @@
-google.maps.event.addDomListener(window, 'load', function(){
-  var map = new google.maps.Map(document.getElementById("map"), {
+
+  function main() {
+  var keyword = $("#kbselect").val();
+  
+  var map = initialize();
+  myTweets(map, keyword);
+  
+});
+  $("#kbselect" ).change(function () {
+    
+
+    keyword = $("#kbselect").val();
+
+    
+    myTweets(map, keyword);
+  });
+  
+}
+
+function initialize() {
+  var myLatlng = new google.maps.LatLng(-25.363882,131.044922);
+  var Options = {
     center: new google.maps.LatLng(40.7127, -74.0059),
     zoom: 8,
     mapTypeId: google.maps.MapTypeId.ROADMAP
-  });
+  };
+  var map = new google.maps.Map(document.getElementById('map'), Options);
 
-  var socket = io.connect('http://localhost:8080');
+   return map;
+}
+ 
+function myTweets(map, keyword) {
+  
+  var serverUrl = "http://twittmap-env.elasticbeanstalk.com/?keyword="+keyword;
+  
+  $.ajax({
+      url : serverUrl,
+      data : '',
+      dataType: 'json',
+      success : function(jsonarray) {
+          
+          
+          
+          $.each(jsonarray, function(i, tweet) {
+            var lng = tweet.lng;
+            var lat = tweet.lat;
+            var TweetLatLng = google.maps.LatLng(lat,lng);
+            //var point = new google.maps.LatLng(lat, lng);
+            var marker = new google.maps.Marker({
+            position: TweetLatLng,
+            map: map,
 
-  socket.on('tweet', function(data) {
-    if (data.geo) {
-      var location = new google.maps.LatLng(data.geo.coordinates[0], data.geo.coordinates[1]);
-
-      var infoWindow = new google.maps.InfoWindow({
-        content: data.place.name
-      });
+          });
+          
       
-      var marker = new google.maps.Marker({
-        position: location,
-        title: "Client Geolocation",
-        animation: google.maps.Animation.DROP,
-        draggable: true
-      });
-      
-      marker.setMap(map);
-    }
+      }
   });
-});
-console.log('hello!');
+  
+}
+
+$(document).ready(main);
+
