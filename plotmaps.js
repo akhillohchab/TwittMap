@@ -1,6 +1,6 @@
 google.maps.event.addDomListener(window, 'load', function(){
   var map = new google.maps.Map(document.getElementById("map"), {
-    center: new google.maps.LatLng(37.7749300, -122.4194200),
+    center: new google.maps.LatLng(40.7127, -74.0059),
     zoom: 8,
     mapTypeId: google.maps.MapTypeId.ROADMAP
   });
