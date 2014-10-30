@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -30,7 +31,9 @@ public final class TweetGet {
 	private static String oAuthConsumerSecret = "mturYGKTi7CXhRlK9gkSJWF8XKyV1pTRLX7n2OBBydYKBTL9e6";
 	private static String oAuthAccessToken = "1952751391-ISOlpkQMwv79EOtUQRwdOhlmY5eZMCWM3TePX50";
 	private static String oAuthAccessTokenSecret = "lKbVowBHd7xogIsmdiuHB6WBGO0GyR8RoddDmS0XW0TGl";
-
+	private static String[] keywords = {"ISIS", "NFL", "Ebola","Interstellar","Thanksgiving","Halloween","Winter","NYC","Obama"};
+	
+	
     /**
      * Main entry of this application.
      *
@@ -51,16 +54,15 @@ public final class TweetGet {
             @Override
             public void onStatus(Status status) {
                 System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText());
-            	//System.out.println(status.getText());
-                
                 long statusId = status.getId();
                 long userId = status.getUser().getId();
                 String screenName = status.getUser().getScreenName();
                 String text = status.getText();
                 GeoLocation location = status.getGeoLocation();
                 String userProfileLocation = status.getUser().getLocation();  
-                double latitude;
-                double longitude;
+                Date createdTime = status.getCreatedAt();
+                double latitude = 0;
+                double longitude = 0;
                 if (location != null) {
 	                latitude = location.getLatitude();
 	                longitude = location.getLongitude();
@@ -68,9 +70,17 @@ public final class TweetGet {
                 	//TODO query google for coords
                 }
                 
-                System.out.println(location + ", " + userProfileLocation);
-                //TODO parse for keywords
-                //dao.insertStatus(statusId, screenName, text, latitude, longitude, null);
+                Tweet tweet = new Tweet(userId, statusId, screenName, text, latitude, longitude, createdTime);
+                boolean hasKeyword = false;
+                for (String keyword : keywords) {
+                	if (text.toUpperCase().contains(keyword.toUpperCase())) {
+                		hasKeyword = true;
+                		dao.insertStatus(tweet, keyword);
+                	}
+                }
+                if (!hasKeyword) {
+                	dao.insertStatus(tweet, "none");
+                }
             }
 
             @Override
@@ -102,14 +112,13 @@ public final class TweetGet {
                 ex.printStackTrace();
             }
         };
-        FilterQuery fq = new FilterQuery();
-        String keywords[] = {"ISIS", "NFL", "Ebola","Interstellar","Thanksgiving","Christopher Nolan","Winter","NYC","Obama"};
-        String lang[] = {"en","es"};
-        fq.track(keywords).language(lang);
+        //FilterQuery fq = new FilterQuery();
+        //String keywords[] = {"ISIS", "NFL", "Ebola","Interstellar","Thanksgiving","Christopher Nolan","Winter","NYC","Obama"};
+        //String lang[] = {"en","es"};
+        //fq.track(keywords).language(lang);
 
         twitterStream.addListener(listener);
-        twitterStream.filter(fq); 
-        
-
+        twitterStream.sample();
+        //twitterStream.filter(fq); 
     }
 }
