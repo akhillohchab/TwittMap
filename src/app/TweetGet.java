@@ -33,7 +33,8 @@ public final class TweetGet {
 	private static String oAuthAccessToken = "1952751391-ISOlpkQMwv79EOtUQRwdOhlmY5eZMCWM3TePX50";
 	private static String oAuthAccessTokenSecret = "lKbVowBHd7xogIsmdiuHB6WBGO0GyR8RoddDmS0XW0TGl";
 	private static String[] keywords = {"ISIS", "NFL", "Ebola","Interstellar","Thanksgiving","Halloween","Winter","NYC","Obama"};
-	
+	private static final Object lock = new Object();
+	private static long startTime = System.currentTimeMillis();
 	
     /**
      * Main entry of this application.
@@ -82,6 +83,12 @@ public final class TweetGet {
                 if (!hasKeyword) {
                 	dao.insertStatus(tweet, "none");
                 }
+                //it has been one minute - stop the streaming
+                if (System.currentTimeMillis() > startTime + 60000) {
+                	synchronized (lock) {
+                        lock.notify();
+                      }
+                }
             }
 
             @Override
@@ -113,13 +120,22 @@ public final class TweetGet {
                 ex.printStackTrace();
             }
         };
-        //FilterQuery fq = new FilterQuery();
-        //String keywords[] = {"ISIS", "NFL", "Ebola","Interstellar","Thanksgiving","Christopher Nolan","Winter","NYC","Obama"};
-        //String lang[] = {"en","es"};
-        //fq.track(keywords).language(lang);
+        FilterQuery fq = new FilterQuery();
+        String keywords[] = {"ISIS", "NFL", "Ebola","Interstellar","Thanksgiving","Christopher Nolan","Winter","NYC","Obama"};
+        String lang[] = {"en","es"};
+        fq.track(keywords).language(lang);
 
         twitterStream.addListener(listener);
-        twitterStream.sample();
-        //twitterStream.filter(fq); 
+        //twitterStream.sample();
+        twitterStream.filter(fq);
+        try {
+        	synchronized (lock) {
+        		lock.wait();
+        	}
+        } catch (InterruptedException e) {
+        	// TODO Auto-generated catch block
+        	e.printStackTrace();
+        }
+        twitterStream.shutdown();
     }
 }
