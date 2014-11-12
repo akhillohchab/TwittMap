@@ -30,8 +30,15 @@ public class TwitterDAO {
 	private final static String PASS = "&password=Assignment1";
 	private final static String CONNECTION = DB + ENDPOINT + USER + PASS;
 	private final static String CONNECTION_TEMP = "jdbc:mysql://aag5obk3j1kr5y.cbfmpecmwali.us-east-1.rds.amazonaws.com:3306/test?user=cloudcomputing&password=Assignment1";
+	private static String dbName = System.getProperty("RDS_DB_NAME"); 
+	private static String userName = System.getProperty("RDS_USERNAME"); 
+	private static String password = System.getProperty("RDS_PASSWORD"); 
+	private static String hostname = System.getProperty("RDS_HOSTNAME");
+	private static String port = System.getProperty("RDS_PORT");
+	private static String jdbcUrl = "jdbc:mysql://" + hostname + ":" + port + "/" + dbName + "?user=" + userName + "&password=" + password;
 	
 	public TwitterDAO() {
+		//TODO try removing this
 		try {
     		Class.forName("com.mysql.jdbc.Driver").newInstance();
         } catch (Exception ex) {
@@ -166,6 +173,9 @@ public class TwitterDAO {
     			double latitude = rs.getDouble("Latitude");
     			double longitude = rs.getDouble("Longitude");
     			Date createdTime = rs.getDate("CreatedTime");
+    			if (latitude == 0.0 && longitude == 0.0) {
+    				continue;
+    			}
     			Tweet tweet = new Tweet(userId, statusId, screenName, text, latitude, longitude, createdTime);
     			tweets.add(tweet);
     		}
@@ -173,7 +183,7 @@ public class TwitterDAO {
     		System.out.println("SQLException: " + e.getMessage());
     	    System.out.println("SQLState: " + e.getSQLState());
     	    System.out.println("VendorError: " + e.getErrorCode());
-    	} finally {
+    	}finally {
     		try {
 		         if(stmt!=null) {
 		        	 conn.close();
@@ -211,6 +221,9 @@ public class TwitterDAO {
     			double latitude = rs.getDouble("Latitude");
     			double longitude = rs.getDouble("Longitude");
     			Date createdTime = rs.getDate("CreatedTime");
+    			if (latitude == 0.0 && longitude == 0.0) {
+    				continue;
+    			}
     			Tweet tweet = new Tweet(userId, statusId, screenName, text, latitude, longitude, createdTime);
     			tweets.add(tweet);
     		}
